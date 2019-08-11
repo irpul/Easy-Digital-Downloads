@@ -1,0 +1,2 @@
+# edd
+Easy Digital Downloads
