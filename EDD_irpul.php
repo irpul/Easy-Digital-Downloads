@@ -138,7 +138,7 @@ if (!class_exists('EDD_DP')) :
 			$decrypted 		= url_decrypt( $irpul_token );
 			if($decrypted['status']){
 				parse_str($decrypted['data'], $ir_output);
-				$tran_id 	= $ir_output['tran_id'];
+				$trans_id 	= $ir_output['trans_id'];
 				$invoiceid2 = $ir_output['order_id'];
 				$amount 	= $ir_output['amount'];
 				$refcode	= $ir_output['refcode'];
@@ -149,7 +149,7 @@ if (!class_exists('EDD_DP')) :
 					$amount = $_SESSION['dp_am'];
 					$parameters = array(
 						'method' 	    => 'verify',
-						'trans_id' 		=> $tran_id,
+						'trans_id' 		=> $trans_id,
 						'amount'	 	=> $amount,
 					);
 
@@ -296,7 +296,7 @@ function url_decrypt($string){
 	}
 	$decrypted = base64_decode($data);
 
-	$check = array('tran_id','order_id','amount','refcode','status');
+	$check = array('trans_id','order_id','amount','refcode','status');
 	foreach($check as $str){
 		str_replace($str,'',$decrypted,$count);
 		if($count > 0){
