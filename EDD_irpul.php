@@ -97,7 +97,7 @@ if (!class_exists('EDD_DP')) :
 				'callback_url' 	=> $callback,
 				'address' 		=> '',
 				'description' 	=> '',
-				'test_mode' 	=> true,
+				'test_mode' 	=> false,
 			);
 
 			$token 		= $edd_options['token_irpul'];
