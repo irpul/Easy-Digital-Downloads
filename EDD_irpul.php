@@ -134,10 +134,7 @@ if (!class_exists('EDD_DP')) :
 		if( isset($_GET['order']) && $_GET['order'] == 'dp'){
 			$payment = $_SESSION['dp_pay'];
 			
-			$irpul_token 	= $_GET['irpul_token'];
-			$decrypted 		= url_decrypt( $irpul_token );
-			if($decrypted['status']){
-				parse_str($decrypted['data'], $ir_output);
+			if( isset($_POST['trans_id']) && isset($_POST['order_id']) && isset($_POST['amount']) && isset($_POST['refcode']) && isset($_POST['status']) ){
 				$trans_id 	= $ir_output['trans_id'];
 				$invoiceid2 = $ir_output['order_id'];
 				$amount 	= $ir_output['amount'];
@@ -161,9 +158,19 @@ if (!class_exists('EDD_DP')) :
 						$data =  json_decode($result['data'],true);
 
 						if( isset($data['code']) && $data['code'] === 1){
-							edd_update_payment_status($payment, 'complete');
-							edd_empty_cart();
-							edd_send_to_success_page();
+							$irpul_amount  = $data['amount'];
+
+							if($amount == $irpul_amount){
+								edd_update_payment_status($payment, 'complete');
+								edd_empty_cart();
+								edd_send_to_success_page();
+							}
+							else{
+								$error_msg = 'مبلغ تراکنش در ایرپول (' . number_format($irpul_amount) . ' تومان) تومان با مبلغ تراکنش در سیمانت (' . number_format($amount) . ' تومان) برابر نیست';
+								edd_update_payment_status($payment, 'failed');
+								echo '<html><head><meta charset="utf-8"><meta http-equiv="refresh" CONTENT="5; url=' . get_permalink($edd_options['failure_page']) . '"></head><body>Error: ' . $error_msg . "<br/><a href='" . get_permalink($edd_options['failure_page']) . "' >ادامه</a></body></html>" ;
+								exit;
+							}
 						}
 						else{
 							edd_update_payment_status($payment, 'failed');
@@ -182,12 +189,13 @@ if (!class_exists('EDD_DP')) :
 					edd_update_payment_status($payment, 'failed');
 					wp_redirect(get_permalink($edd_options['failure_page']));
 					exit;	
-				}	
-			}else{
-				edd_update_payment_status($payment, 'failed');
-				wp_redirect(get_permalink($edd_options['failure_page']));
-				exit;	
+				}
 			}
+			else{
+				edd_update_payment_status($payment, 'failed');
+				echo '<html><head><meta charset="utf-8"><meta http-equiv="refresh" CONTENT="5; url=' . get_permalink($edd_options['failure_page']) . '"></head><body>Error: ' . "undefined callback parameters" . "<br/><a href='" . get_permalink($edd_options['failure_page']) . "' >ادامه</a></body></html>" ;
+				exit;
+			}				
 		}			
 	}
 
@@ -285,29 +293,6 @@ function post_data($url,$params,$token) {
 		//error_log(print_r($res,true));
 	}
 	return $res;
-}
-
-function url_decrypt($string){
-	$counter = 0;
-	$data = str_replace(array('-','_','.'),array('+','/','='),$string);
-	$mod4 = strlen($data) % 4;
-	if ($mod4) {
-		$data .= substr('====', $mod4);
-	}
-	$decrypted = base64_decode($data);
-
-	$check = array('trans_id','order_id','amount','refcode','status');
-	foreach($check as $str){
-		str_replace($str,'',$decrypted,$count);
-		if($count > 0){
-			$counter++;
-		}
-	}
-	if($counter === 5){
-		return array('data'=>$decrypted , 'status'=>true);
-	}else{
-		return array('data'=>'' , 'status'=>false);
-	}
 }
 
 new EDD_dp();
