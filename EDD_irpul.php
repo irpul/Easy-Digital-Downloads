@@ -135,11 +135,11 @@ if (!class_exists('EDD_DP')) :
 			$payment = $_SESSION['dp_pay'];
 			
 			if( isset($_POST['trans_id']) && isset($_POST['order_id']) && isset($_POST['amount']) && isset($_POST['refcode']) && isset($_POST['status']) ){
-				$trans_id 	= $ir_output['trans_id'];
-				$invoiceid2 = $ir_output['order_id'];
-				$amount 	= $ir_output['amount'];
-				$refcode	= $ir_output['refcode'];
-				$status 	= $ir_output['status'];
+				$trans_id 	= $_POST['trans_id'];
+				$invoiceid2 = $_POST['order_id'];
+				$amount 	= $_POST['amount'];
+				$refcode	= $_POST['refcode'];
+				$status 	= $_POST['status'];
 				
 				if($status == 'paid'){
 
